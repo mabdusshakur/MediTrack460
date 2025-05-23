@@ -6,11 +6,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, LogsActivity;
+
+    const ROLE_ADMIN = 'admin';
+    const ROLE_RECEPTIONIST = 'receptionist';
+    const ROLE_DOCTOR = 'doctor';
+    const ROLE_PHARMACIST = 'pharmacist';
+    const ROLE_STOREKEEPER = 'storekeeper';
+    const ROLE_LAB_TECHNICIAN = 'lab_technician';
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +30,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'status',
     ];
 
     /**
@@ -44,5 +55,43 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function isReceptionist(): bool
+    {
+        return $this->role === self::ROLE_RECEPTIONIST;
+    }
+
+    public function isDoctor(): bool
+    {
+        return $this->role === self::ROLE_DOCTOR;
+    }
+
+    public function isPharmacist(): bool
+    {
+        return $this->role === self::ROLE_PHARMACIST;
+    }
+
+    public function isStorekeeper(): bool
+    {
+        return $this->role === self::ROLE_STOREKEEPER;
+    }
+
+    public function isLabTechnician(): bool
+    {
+        return $this->role === self::ROLE_LAB_TECHNICIAN;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'email', 'role'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }
